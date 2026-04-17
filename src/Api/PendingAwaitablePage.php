@@ -182,6 +182,10 @@ final class PendingAwaitablePage
 
         $context->addInitScript(InitScript::get());
 
+        if (Playwright::isTracingEnabled()) {
+            $context->startTracing();
+        }
+
         $url = ComputeUrl::from($this->url);
 
         return new AwaitableWebpage(

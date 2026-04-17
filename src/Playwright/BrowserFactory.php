@@ -95,4 +95,14 @@ final class BrowserFactory
             $this->browser->reset();
         }
     }
+
+    /**
+     * Stops the browser tracing.
+     */
+    public function saveTraces(): void
+    {
+        if ($this->browser instanceof Browser) {
+            $this->browser->saveTraces();
+        }
+    }
 }

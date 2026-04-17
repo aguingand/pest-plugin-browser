@@ -60,6 +60,16 @@ final class Playwright
     private static ?string $host = null;
 
     /**
+     * Whether to enable tracing.
+     */
+    private static bool $tracing = false;
+
+    /**
+     * Whether to only keep traces on failure.
+     */
+    private static bool $tracingFailureOnly = false;
+
+    /**
      * Get a browser factory for the given browser type.
      */
     public static function browser(BrowserType $browserType): BrowserFactory
@@ -185,6 +195,41 @@ final class Playwright
     public static function shouldDebugAssertions(): bool
     {
         return self::$shouldDebugAssertions;
+    }
+
+    /**
+     * Enable tracing.
+     */
+    public static function enableTracing(bool $failureOnly = false): void
+    {
+        self::$tracing = true;
+        self::$tracingFailureOnly = $failureOnly;
+    }
+
+    /**
+     * Whether tracing is enabled.
+     */
+    public static function isTracingEnabled(): bool
+    {
+        return self::$tracing;
+    }
+
+    /**
+     * Whether to only keep traces on failure.
+     */
+    public static function isTracingFailureOnly(): bool
+    {
+        return self::$tracingFailureOnly;
+    }
+
+    /**
+     * Stop tracing on all browser types.
+     */
+    public static function saveTraces(): void
+    {
+        foreach (self::$browserTypes as $browserType) {
+            $browserType->saveTraces();
+        }
     }
 
     /**

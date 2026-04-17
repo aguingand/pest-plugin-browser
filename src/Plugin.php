@@ -50,6 +50,19 @@ final class Plugin implements Bootable, HandlesArguments, Terminable // @pest-ar
                 }
             }
 
+            if (Playwright::isTracingEnabled()) {
+                /** @var TestStatus $status */
+                $status = $this->status(); // @phpstan-ignore-line
+
+                if (Playwright::isTracingFailureOnly()) {
+                    if (! $status->isFailure() && ! $status->isError()) {
+                        Playwright::saveTraces();
+                    }
+                } else {
+                    Playwright::saveTraces();
+                }
+            }
+
             ServerManager::instance()->http()->flush();
 
             Playwright::reset();
@@ -91,6 +104,18 @@ final class Plugin implements Bootable, HandlesArguments, Terminable // @pest-ar
             Playwright::setColorScheme(ColorScheme::LIGHT);
 
             $arguments = $this->popArgument('--light', $arguments);
+        }
+
+        if ($this->hasArgument('--trace', $arguments)) {
+            $failureOnly = $this->hasArgument('--trace-failure-only', $arguments);
+
+            Playwright::enableTracing($failureOnly);
+
+            $arguments = $this->popArgument('--trace', $arguments);
+
+            if ($failureOnly) {
+                $arguments = $this->popArgument('--trace-failure-only', $arguments);
+            }
         }
 
         if ($this->hasArgument('--browser', $arguments)) {

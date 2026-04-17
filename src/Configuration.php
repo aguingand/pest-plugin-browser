@@ -124,4 +124,14 @@ final readonly class Configuration
 
         return $this;
     }
+
+    /**
+     * Enables tracing mode.
+     */
+    public function trace(bool $failureOnly = false): self
+    {
+        Playwright::enableTracing($failureOnly);
+
+        return $this;
+    }
 }

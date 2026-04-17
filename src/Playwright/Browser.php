@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pest\Browser\Playwright;
 
 use Pest\Browser\Exceptions\BrowserAlreadyClosedException;
+use Pest\Browser\Support\Trace;
 
 /**
  * @internal
@@ -47,10 +48,21 @@ final class Browser
 
         $response = Client::instance()->execute($this->guid, 'newContext', $options);
 
-        /** @var array{result: array{context: array{guid: string|null}}} $message */
+        $contextGuid = '';
+        $tracingGuid = '';
+
+        /** @var array{method?: string|null, params?: array{type?: string|null, guid?: string}, result?: array{context?: array{guid?: string|null}}} $message */
         foreach ($response as $message) {
+            if (
+                isset($message['method'], $message['params']['type'], $message['params']['guid'])
+                && $message['method'] === '__create__'
+                && $message['params']['type'] === 'Tracing'
+            ) {
+                $tracingGuid = $message['params']['guid'];
+            }
+
             if (isset($message['result']['context']['guid'])) {
-                $context = new Context($this, $message['result']['context']['guid']);
+                $context = new Context($this, $message['result']['context']['guid'], $tracingGuid);
             }
         }
 
@@ -99,5 +111,16 @@ final class Browser
         }
 
         $this->contexts = [];
+    }
+
+    /**
+     * Stops the browser tracing.
+     */
+    public function saveTraces(): void
+    {
+        foreach ($this->contexts as $context) {
+            $filename = Trace::filename();
+            $context->saveTrace(Trace::path($filename));
+        }
     }
 }
