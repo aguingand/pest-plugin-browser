@@ -47,7 +47,7 @@ final class Playwright
     /**
      * The timeout in milliseconds.
      */
-    private static int $timeout = 5_000;
+    private static int $timeout = 6_000;
 
     /**
      * The default userAgent.
